@@ -5,7 +5,7 @@ const bundleanalyzerplugin = require('webpack-bundle-analyzer').BundleAnalyzerPl
 // Create multiple instances
 module.exports = {
     entry: {
-        index: './test11152.js'
+        index: './fabric.js'
     },
     module: {
         rules: [{
