@@ -1,33 +1,35 @@
-let fabric = require('fabric').fabric
-let _ = require('lodash')
-
 let canvas = new fabric.Canvas('canvas')
 
-let redish = new fabric.Color('#f55')
-let greenish = new fabric.Color('#5f5')
-redish.overlayWith(greenish) // olivine
-redish.toGrayscale() //gray
 
-let rect = new fabric.Rect()
-rect.set({
-    fill: redish.toRgb(),
+let text = new fabric.Text('哈哈\n我是新的一行', {
+    linethrough: true,
+    underline: true,
+    overLine: true,
     left: 100,
     top: 100,
-    width: 100,
-    height: 100
+    fontSize: 60,
+    fontWeight: 'bold',
+    fontFamily: '方正兰亭超细黑简体',
+    shadow: 'gray 5px 5px 10px',
+    fontStyle: 'italic',
+    stroke: 'red',
+    strokeWidth: 1,
+    textAlign: 'right',
+    lineHeight: 1.5,
+    textBackgroundColor: 'rgb(0,100,0)',
 })
-rect.setGradient('fill', {
-    x1: 0,
-    y1: 50,
-    x2: 100,
-    y2: 50,
-    colorStops: {
-        0: 'red',
-        0.2: 'orange',
-        0.4: 'yellow',
-        0.6: 'green',
-        0.8: 'blue',
-        1: 'purple'
+
+text.on({
+    //mousedown mouse:down
+    'mousedown': function (e) {
+        console.log(e)
     }
-})
-canvas.add(rect)
+});
+canvas.on({
+    //mousedown mouse:down
+    'touch:drag': function (e) {
+        // console.log(e.e.touches[0].pageX)
+        console.log(e)
+    }
+});
+canvas.add(text)
