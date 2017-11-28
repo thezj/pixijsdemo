@@ -13,7 +13,39 @@
         <hr>
         <button onclick="saveCanvas()">保存</button>
         <button onclick="clearCanvas()">清空画布</button>
-        <button onclick="applyCanvas()">应用保存</button>
+        <button onclick="clearSelected()">删除选中</button>
+        <button onclick="applyCanvas()">还原保存</button>
+        <button onclick="editable()">开启编辑</button>
+        <button onclick="uneditable()">开启画图</button>
+        <div style='background:"gray"' id="drawoperate">
+            <table>
+                <tr>
+                    <td colspan="2">画图设置</td>
+                </tr>
+                <tr>
+                    <td>mode:</td>
+                    <td>
+                        <select id="brushmode">
+                            <option value="pencil">Pencil</option>
+                            <option value="cross">Cross</option>
+                            <option value="diamond">Diamond</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td>画笔宽度:</td>
+                    <td>
+                        <input type="range" value="10" min="0" max="150" id="drawing-line-width">
+                    </td>
+                </tr>
+                <tr>
+                    <td>颜色:</td>
+                    <td>
+                        <input type="color" value="#ffff00" id="drawing-color">
+                    </td>
+                </tr>
+            </table>
+        </div>
     </div>
 </body>
 
