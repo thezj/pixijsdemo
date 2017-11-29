@@ -1,178 +1,71 @@
 let canvas = new fabric.Canvas('canvas')
 let _ = require('lodash')
 
-canvas.backgroundColor = 'red'
-
-canvas.add(new fabric.Rect({
-    left: 50,
-    top: 50,
-    height: 20,
-    width: 20,
-    fill: 'green'
-}))
-
-canvas.add(new fabric.Rect({
-    left: 150,
-    top: 150,
-    height: 20,
-    width: 20,
-    fill: 'yellow'
-}))
-
-let rect3 = new fabric.Rect({
-    left: 250,
-    top: 250,
-    height: 20,
-    width: 20,
-    fill: 'purple'
+let Point = fabric.util.createClass({
+    initialize(x = 0, y = 0) {
+        this.x = x
+        this.y = y
+    },
+    toString() {
+        return `${this.x}/${this.y}`
+    }
 })
-rect3.name = 'id123891237fdidsf'
-rect3.toObject = (toObject => {
-    return function () {
-        return fabric.util.object.extend(toObject.call(this), {
-            name: this.name
+
+var ColoredPoint = fabric.util.createClass(Point, {
+    initialize: function (x, y, color) {
+        this.callSuper('initialize', x, y);
+        this.color = color || '#000';
+    },
+    toString: function () {
+        return this.callSuper('toString') + ' (color: ' + this.color + ')';
+    }
+});
+
+let point1 = new Point(10, 20)
+let point2 = new ColoredPoint(10, 20, 'red')
+
+console.log(point1.toString())
+console.log(point2.toString())
+
+let LabeledRect = fabric.util.createClass(fabric.Rect, {
+    type: 'labeledRect',
+    initialize(options = {}) {
+        this.callSuper('initialize', options)
+        //如果添加了定制的属性，那么要在toObject 等方法处添加输出，为以后序列号和反序列化使用
+        this.set('label', options.label || '')
+    },
+
+    toObject: function () {
+        return fabric.util.object.extend(this.callSuper('toObject'), {
+            //如果添加了定制的属性，那么要在toObject 等方法处添加输出，为以后序列号和反序列化使用
+            label: this.get('label')
+        });
+    },
+
+    _render(ctx) {
+        this.callSuper('_render', ctx)
+        // ctx.font = '20px Helvetica'
+        // ctx.fillStyle = '#222'
+        // ctx.fillText(this.label, this.width / 2, -this.height / 2 + 20)
+        let text = new fabric.Text(this.label, {
+            //坐标原点基于父级object的中心位置，所以如果设置为left:0,top:0,文字会出现在object的右下
+            left: -this.width / 2,
+            top: -this.height / 2,
         })
-    }
-})(rect3.toObject)
-
-canvas.add(rect3)
-
-fabric.loadSVGFromURL('/flower.svg', (objects, options) => {
-    let flower = fabric.util.groupSVGElements(objects, options)
-    flower.set('sourcePath', '/flower.svg');
-    flower.set({
-        left: 300,
-        top: 300,
-    })
-    console.log('nosvg========', JSON.stringify(canvas), '\n\n\n\n\n\n')
-    console.log('hassvg========', JSON.stringify(canvas), '\n\n\n\n\n\n')
-    canvas.add(flower).renderAll()
-    //svg sourcepath format '/path' can not be './path'
-    console.log('hassvg toDatalessJSON========', JSON.stringify(canvas.toDatalessJSON()), '\n\n\n\n\n\n')
-})
-
-
-canvas.renderAll()
-canvas.isDrawingMode = true
-
-console.log(canvas.toDataURL('png'))
-console.log(canvas.toObject())
-// console.log(canvas.toSVG())
-let canvasData = null
-
-window.saveCanvas = () => {
-    canvasData = canvas.toObject()
-    console.log(canvasData)
-}
-
-window.clearCanvas = () => {
-    canvas.clear()
-}
-
-
-window.applyCanvas = () => {
-    canvas.loadFromDatalessJSON(JSON.stringify(canvasData))
-}
-
-let $ = id => {
-    return document.querySelector(id)
-}
-// 绘图画笔设置
-let drawoperate = $('#drawoperate'),
-    drawingbrush = $('#brushmode'),
-    drawingColorEl = $('#drawing-color'),
-    drawingLineWidthEl = $('#drawing-line-width')
-
-drawingColorEl.addEventListener('change', i => {
-    canvas.freeDrawingBrush.color = drawingColorEl.value
-})
-
-drawingLineWidthEl.addEventListener('change', i => {
-    canvas.freeDrawingBrush.width = parseInt(drawingLineWidthEl.value, 10) || 1
-})
-
-let vLinePatternBrush = new fabric.PatternBrush(canvas)
-vLinePatternBrush.getPatternSrc = function () {
-    var patternCanvas = fabric.document.createElement('canvas');
-    patternCanvas.width = patternCanvas.height = 10
-    var ctx = patternCanvas.getContext('2d')
-    ctx.strokeStyle = this.color
-    ctx.lineWidth = 5;
-    ctx.beginPath()
-    ctx.moveTo(2.5, 0)
-    ctx.lineTo(2.5, 5)
-    ctx.stroke()
-    return patternCanvas
-}
-
-let diamondPatternBrush = null
-fabric.loadSVGFromURL('./diamond.svg', (objects, options) => {
-    window.diamond = fabric.util.groupSVGElements(objects, options)
-    diamond.set({
-        left: 0,
-        top: 0,
-        scaleX: 0.2,
-        scaleY: 0.2,
-        originX: 'center',
-        originY: 'center'
-    })
-    diamondPatternBrush = new fabric.PatternBrush(canvas)
-    diamondPatternBrush.getPatternSrc = () => {
-        var patternCanvas = fabric.document.createElement('canvas')
-        patternCanvas.width = patternCanvas.height = 50
-        diamond.set({
-            left: patternCanvas.width / 2,
-            top: patternCanvas.width / 2
-        })
-        diamond.render(patternCanvas.getContext('2d'))
-
-        return patternCanvas
+        text.render(ctx)
     }
 })
 
-// 图片texture纹理笔刷
-/*
-var img = new Image();
-img.src = '../assets/honey_im_subtle.png';
+var labeledRect = new LabeledRect({
+    width: 100,
+    height: 100,
+    left: 100,
+    top: 100,
+    label: 'test3333',
+    fill: '#faa'
+});
 
-var texturePatternBrush = new fabric.PatternBrush(canvas);
-texturePatternBrush.source = img;
- */
+canvas.add(labeledRect);
 
-let setBrushProperty = i => {
-    canvas.freeDrawingBrush.color = drawingColorEl.value
-    canvas.freeDrawingBrush.width = parseInt(drawingLineWidthEl.value, 10) || 1
-}
-setBrushProperty()
-drawingbrush.addEventListener('change', i => {
-    switch (drawingbrush.value) {
-        case 'pencil':
-            canvas.freeDrawingBrush = new fabric.PencilBrush(canvas)
-            break;
-        case 'cross':
-            canvas.freeDrawingBrush = vLinePatternBrush
-            break;
-        case 'diamond':
-            canvas.freeDrawingBrush = diamondPatternBrush
-            break;
-    }
-    setBrushProperty()
-})
-
-window.editable = i => {
-    canvas.isDrawingMode = false
-    drawoperate.style.display = 'none'
-}
-
-window.uneditable = i => {
-    canvas.isDrawingMode = true
-    drawoperate.style.display = 'block'
-}
-
-
-
-window.clearSelected = i => {
-    canvas.getActiveObjects().map(i => {
-        canvas.remove(i)
-    })
-}
+//如果添加了定制的属性，那么要在toObject 等方法处添加输出，为以后序列号和反序列化使用
+console.log(canvas.toJSON())
